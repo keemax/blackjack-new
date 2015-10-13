@@ -4,32 +4,32 @@ This is a blackjack server. It acts as a dealer in the form of a REST API. You a
 
 To run, simply clone this repo and run `python application.py` from the root folder. If you're missing dependencies, you may install them with PIP.
 
-you should only need flask:
+you should only need flask:  
 Flask==0.10.1	`pip install Flask`
 
-If you are unfamiliar with blackjack, try starting [here](http://wizardofodds.com/games/blackjack/basics/#toc-Rules)
+If you are unfamiliar with blackjack, try starting [here](http://wizardofodds.com/games/blackjack/basics/#toc-Rules)  
 (hint: even if you know all the rules, that website is very useful for all kinds of strategy tips)
 
 The goal of the challenge is to create a working client that can run through several rounds against the dealer without any hiccups.
 Once you have a basic client working, if time allows, try to add strategy to your player to improve its performance.
 
 ## Rules
-This is a simplified version of blackjack... here are the rules
-	* No splitting (this is the biggest difference from casino blackjack, I realize it hurts your odds, but it greatly simplifies the game)
-	* No insurance
-	* You may surrender (only on your first 2 cards)
-	* Single deck
-	* Dealer hits on soft 17
-	* Blackjack pays out 3:2
-	* Double down on any hand (only on your first 2 cards)
-	* Dealer doesn't peek for blackjack
+This is a simplified version of blackjack... here are the rules:
+* No splitting (this is the biggest difference from casino blackjack, I realize it hurts your odds, but it greatly simplifies the game)
+* No insurance
+* You may surrender (only on your first 2 cards)
+* Single deck
+* Dealer hits on soft 17
+* Blackjack pays out 3:2
+* Double down on any hand (only on your first 2 cards)
+* Dealer doesn't peek for blackjack
 
 
 
 ## API reference
 
 ### POST /player
-##### register new player
+##### Register new player with provided name. Gives you 1000 chips to start and assigns you to a game.
 ##### parameters: `name`
 
 
@@ -65,16 +65,16 @@ This is a simplified version of blackjack... here are the rules
         "revealedCards": [],
         "id": "d701094d-2824-4b8f-87a5-039cca330488"
     },
-    "playerId": "a7513caa-2c08-4321-bea4-6432cf30a065"
+    "playerId": "a7513caa-2c08-4321-bea4-6432cf30a065",
     "location": "/player/a7513caa-2c08-4321-bea4-6432cf30a065"
 }
 ```
 
-note: this is the only time you'll get your playerId - keep it secret, keep it safe.
+Note: Rhis is the only time you'll get your playerId - keep it secret, keep it safe.
 
 
 ### GET /players
-##### get all players
+##### Get all players.
 
 `GET /players`
 
@@ -103,8 +103,8 @@ note: this is the only time you'll get your playerId - keep it secret, keep it s
 ```
 
 
-### GET /player/<id>
-##### get your player info
+### GET /player/:id
+##### Get your player info.
 
 
 `GET /player/482a8c91-6999-4b99-ac4f-4260f0ee19cf`
@@ -133,7 +133,7 @@ note: this is the only time you'll get your playerId - keep it secret, keep it s
 
 
 ### GET /games
-##### list all games
+##### List all games.
 
 
 `GET /games`
@@ -256,8 +256,8 @@ note: this is the only time you'll get your playerId - keep it secret, keep it s
 ```
 
 
-### GET /game/<id>
-##### view a specific game
+### GET /game/:id
+##### View a specific game.
 
 
 `GET /game/25104811-064d-4331-8b0c-8fe114386918`
@@ -415,7 +415,7 @@ note: this is the only time you'll get your playerId - keep it secret, keep it s
 
 
 ### GET /myTurn
-##### check whether it's your turn or not
+##### Check whether it's your turn or not.
 ##### parameters: playerId
 
 
@@ -429,7 +429,7 @@ note: this is the only time you'll get your playerId - keep it secret, keep it s
 ```
 
 ### GET /setWager
-##### set initial wager, must be > 5
+##### Set initial wager, must be >= 5. Tt must be your turn to call this.
 ##### parameters: playerId, wager
 
 `GET /setWager?playerId=482a8c91-6999-4b99-ac4f-4260f0ee19cf&wager=10`
@@ -443,7 +443,7 @@ note: this is the only time you'll get your playerId - keep it secret, keep it s
 
 
 ### GET /hit
-##### adds a card to your hand
+##### Adds a card to your hand. It must be your turn to call this. If your resulting hand is > 21, your turn is over, otherwise, you may hit again or stand.
 ##### parameters: playerId
 
 
@@ -459,7 +459,7 @@ note: this is the only time you'll get your playerId - keep it secret, keep it s
 
 
 ### GET /doubleDown
-##### adds a card to your hand and forces you to stand. you cannot double down if you have already hit on this hand.
+##### Adds a card to your hand and forces you to stand. It must be your turn to call this. You cannot double down if you have already hit on this hand.
 ##### parameters: playerId
 
 
@@ -475,7 +475,7 @@ note: this is the only time you'll get your playerId - keep it secret, keep it s
 
 
 ### GET /stand
-##### ends your turn
+##### Ends your turn. It must be your turn to call this.
 ##### parameters: playerId
 
 `GET /stand?playerId=482a8c91-6999-4b99-ac4f-4260f0ee19cf`
@@ -488,7 +488,7 @@ note: this is the only time you'll get your playerId - keep it secret, keep it s
 ```
 
 ### GET /surrender
-##### forfeit half of your wager and end your turn
+##### Forfeit half of your wager and end your turn. It must be your turn to call this.
 ##### parameters: playerId
 
 `GET /surrender?playerId=482a8c91-6999-4b99-ac4f-4260f0ee19cf`
@@ -502,26 +502,26 @@ note: this is the only time you'll get your playerId - keep it secret, keep it s
 
 ## object reference
 
-player: player object
-	chips: current chip stack. includes wager amount if a wager is currently on the table.
-	name: player name, supplied by POST request to /player
-	hand: hand belonging to player
-		cards: list of card objects.
-			value: value of a card as it applies to the point total. all face cards have value 10.
-			suit: suit for funsies. you probably won't use this
-		soft: whether or not this hand is "soft" aka contains an ace and has value <= 11
-		value: current value of the hand. if soft, value could be this value or this value + 10
-game: game object
-	deckNumber: current deck being used. this value is incremented each time the deck is shuffled
-	players: list of players in this game. if a player runs out of chips or takes too long, they won't be in this list.
-	dealerUpCard: card object representing the dealer's face up card. this card is also included in "revealedCards".
-	active: boolean representing whether or not this game is active. false before game has been started, and false after either all players run out of chips or last round has been reached.
-	revealedCards: list of card objects. every time a card from the current deck is flipped face up, it will be added here (including dealerUpCard). resets when deck is shuffled.
-	id: this game's ID
+**player:** player object  
+  **chips:** Current chip stack. Includes wager amount if a wager is currently on the table.  
+  **name:** Player name, supplied by POST request to `/player`.  
+  **hand:** Hand belonging to player.  
+    **cards:** List of card objects.  
+      **value:** Value of a card as it applies to the point total. All face cards have value 10.  
+      **suit:** Suit for funsies. You probably won't use this  
+    **soft:** Whether or not this hand is "soft" aka contains an ace and has value <= 11.  
+    **value:** Current value of the hand. If soft, value could be this value or this value + 10.  
+**game:** Game object.  
+  **deckNumber:** Current deck being used. This value is incremented each time the deck is shuffled.  
+  **players:** List of players in this game. If a player runs out of chips or takes too long, they won't be in this list.  
+  **dealerUpCard:** Card object representing the dealer's face up card. This card is also included in "revealedCards".  
+  **active:** Boolean representing whether or not this game is active. False before game has been started, and false after either all players run out of chips or last round has been reached.  
+  **revealedCards:** List of card objects. Every time a card from the current deck is flipped face up, it will be added here (including dealerUpCard). Resets when deck is shuffled.  
+  **id:** this game's ID.  
 
 
 ## General notes and errors
-This may look like a REST API, but it doesn't follow many of the REST conventions. It is intended serve as a fun way to demonstrate your knowledge of consuming APIs, a very useful skill with many applications. One of the standard features of REST is a stateless server. This server is very far from stateless... it is keeping track of multiple games with multiple players, each in a certain state at any given time. Because of this, you will have to perform some non-traditional (i.e. hacky) calls to make everything work nicely. Since the server has no way of talking to the clients (to perhaps, notify a client it is his or her turn to play), you must periodically poll the server to get this information. That is the sole purpose of the `/myTurn` endpoint. Once you register your player, you must wait for the game to begin. You can do so by hitting `/game/<gameid>` every second or so (plz don't DDOS the server) until `active` is `true`. You can get info on games/players any time you want. Those endpoints shouldn't return an error unless you forget an ID or pass in an invalid one. However, all the endpoints that require `playerId` as a parameter are specific to you. You should always make sure it's your turn (by hitting `/myTurn` every second or so until `true`) before calling these. 
+This may look like a REST API, but it doesn't follow many of the REST conventions. It is intended serve as a fun way to demonstrate your knowledge of consuming APIs, a very useful skill with many applications. One of the standard features of REST is a stateless server. This server is very far from stateless... it is keeping track of multiple games with multiple players, each in a certain state at any given time. Because of this, you will have to perform some non-traditional (i.e. hacky) calls to make everything work nicely. Since the server has no way of talking to the clients (to perhaps, notify a client it is his or her turn to play), you must periodically poll the server to get this information. That is the sole purpose of the `/myTurn` endpoint. Once you register your player, you must wait for the game to begin. You can do so by hitting `/game/:gameid` every second or so (plz don't DDOS the server) until `active` is `true`. You can get info on games/players any time you want. Those endpoints shouldn't return an error unless you forget an ID or pass in an invalid one. However, all the endpoints that require `playerId` as a parameter are specific to you. You should always make sure it's your turn (by hitting `/myTurn` every second or so until `true`) before calling these. 
 
 Here's some example errors:
 
@@ -548,6 +548,9 @@ Here's some example errors:
 	"error": "you can't double down after hitting"
 }
 ```
+
+
+If we have time, we can play games with multiple players and see who ends up with the most chips (or lasts the longest before losing). The server has a built in monitor that will kick players who haven't done anything in 10 seconds, so make sure your player can last by itself before joining.  
 
 As a final note... this server is not perfect. There may or may not be ways to get unlimited money, sabotage other players, etc. If you can figure out a way to do this (excluding intentionally crashing the server), more power to you. I only ask that you first and foremost try to create a working player.
 
