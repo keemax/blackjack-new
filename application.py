@@ -121,7 +121,7 @@ def stand():
     return json_response({'success': True})
 
 @application.route('/surrender', methods=['GET'])
-def stand():
+def surrender():
     errorMsg, playerId = check_player(request, PlayerStates.NEEDS_CARDS)
     if errorMsg is not None:
         return json_response({'error': errorMsg})
