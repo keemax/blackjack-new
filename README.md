@@ -653,7 +653,9 @@ Looks like the dealer drew a 9 and then a 4, for a total 19. Rats!
 
 If we have time, we can play games with multiple players and see who ends up with the most chips (or lasts the longest before losing). The server has a built in monitor that will kick players who haven't done anything in 10 seconds, so make sure your player can last by itself before joining.  
 
-As a final note... this server is not perfect. There may or may not be ways to get unlimited money, sabotage other players, etc. If you can figure out a way to do this (excluding intentionally crashing the server), more power to you. I only ask that you first and foremost try to create a working player.
+As a final note... this server is not perfect. It was hastily written by one developer who may or may not have been hungover for part of the time. There may or may not be ways to get unlimited money, sabotage other players, etc. If you can figure out a way to do this (excluding intentionally crashing the server), more power to you. I only ask that you first and foremost create a working player with a solid strategy, as that is the surest way to win.
+
+As far as blackjack strategy goes, the internet is your oyster. If there's something missing in the endpoints described above that you need to make your strategy better, ask me and I'll try to add it on the fly.
 
 ### Have fun!
 
