@@ -22,6 +22,8 @@ def get_games():
 # view game
 @application.route('/game/<id>', methods=['GET'])
 def get_game(id):
+    if id not in pitBoss.games:
+        return json_response({'error': 'unknown gameId: {}'.format(id)})
     return json_response(pitBoss.games[id])
 
 
@@ -32,8 +34,10 @@ def register_player():
     if started:
         return json_response({'error': 'games have already started'})
     # create player
-    player = pitBoss.create_player(request.args.get('name'))
-
+    name = request.args.get('name')
+    if name is None:
+        return json_response({'error': 'parameter name is required'})
+    player = pitBoss.create_player(name)
     resp = {}
     resp['player'] = player
     resp['playerId'] = player.id
@@ -50,6 +54,8 @@ def register_player():
 # view player
 @application.route('/player/<id>', methods=['GET'])
 def get_player(id):
+    if id not in pitBoss.players:
+        return json_response({'error': 'unknown playerId: {}'.format(id)})
     return json_response(pitBoss.players[id])
 
 
@@ -61,15 +67,31 @@ def get_players():
 @application.route('/start', methods=['GET'])
 def start_games():
     global started
+    if len(pitBoss.games) == 0:
+        return json_response({'error': 'no games yet'})
+    elif started:
+        return json_response({'error': 'already started'})
     pitBoss.start_games()
     started = True
     return json_response({'success': True})
 
+@application.route('/reset', methods=['GET'])
+def reset():
+    global started, pitBoss
+    for game in pitBoss.games.values():
+        game.end()
+    pitBoss = PitBoss()
+    started = False
+    return json_response({'success': True})
 
 # endpoint for users to check if it's their turn or not
 @application.route('/myTurn', methods=['GET'])
 def my_turn():
     playerId = request.args.get('playerId')
+    if playerId is None:
+        return json_response({'error': 'parameter playerId is required'})
+    elif not playerId in pitBoss.players:
+        return json_response({'error': 'unknown playerId: {}'.format(playerId)})
     myTurn = pitBoss.is_it_my_turn(playerId)
     return json_response({'myTurn': myTurn})
 
@@ -83,7 +105,7 @@ def setWager():
         return json_response({'error': errorMsg})
     wager = request.args.get('wager')
     if wager is None:
-        return json_response({'error': 'parameter \"wager\" is required'})
+        return json_response({'error': 'parameter wager is required'})
     elif int(wager) < config.MIN_WAGER:
         return json_response({'error': 'wager must be greater than the minimum bet of {}'.format(config.MIN_WAGER)})
     elif int(wager) > pitBoss.players[playerId].chips:
@@ -92,7 +114,6 @@ def setWager():
     pitBoss.set_wager(playerId, int(wager))
     return json_response({'success': True})
 
-# todo hit when wager hasn't been set
 @application.route('/hit', methods=['GET'])
 def hit():
     errorMsg, playerId = check_player(request, PlayerStates.NEEDS_CARDS)
@@ -135,7 +156,7 @@ def surrender():
 def check_player(request, playerState):
     playerId = request.args.get('playerId')
     if playerId is None:
-        return ('parameter "playerId" is required', None)
+        return ('parameter playerId is required', None)
     elif not playerId in pitBoss.players:
         return ('unknown playerId: {}'.format(playerId), playerId)
     elif not pitBoss.is_it_my_turn(playerId):
