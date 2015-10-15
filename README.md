@@ -26,7 +26,7 @@ This is a simplified version of blackjack... here are the rules:
 
 
 
-## API reference
+## API Reference
 
 ### POST /player
 ##### Register new player with provided name. Gives you 1000 chips to start and assigns you to a game.
@@ -500,27 +500,28 @@ Note: Rhis is the only time you'll get your playerId - keep it secret, keep it s
 }
 ```
 
-## object reference
+## Object Reference
 
 **player:** player object  
-  **chips:** Current chip stack. Includes wager amount if a wager is currently on the table.  
-  **name:** Player name, supplied by POST request to `/player`.  
-  **hand:** Hand belonging to player.  
-    **cards:** List of card objects.  
-      **value:** Value of a card as it applies to the point total. All face cards have value 10.  
-      **suit:** Suit for funsies. You probably won't use this  
-    **soft:** Whether or not this hand is "soft" aka contains an ace and has value <= 11.  
-    **value:** Current value of the hand. If soft, value could be this value or this value + 10.  
+  -**chips:** Current chip stack. Includes wager amount if a wager is currently on the table.  
+  -**name:** Player name, supplied by POST request to `/player`.  
+  -**hand:** Hand belonging to player.  
+    --**cards:** List of card objects.  
+      ---**value:** Value of a card as it applies to the point total. All face cards have value 10.  
+      ---**suit:** Suit for funsies. You probably won't use this  
+    --**soft:** Whether or not this hand is "soft" aka contains an ace and has value <= 11.  
+    --**value:** Current value of the hand. If soft, value could be this value or this value + 10.  
 **game:** Game object.  
-  **deckNumber:** Current deck being used. This value is incremented each time the deck is shuffled.  
-  **players:** List of players in this game. If a player runs out of chips or takes too long, they won't be in this list.  
-  **dealerUpCard:** Card object representing the dealer's face up card. This card is also included in "revealedCards".  
-  **active:** Boolean representing whether or not this game is active. False before game has been started, and false after either all players run out of chips or last round has been reached.  
-  **revealedCards:** List of card objects. Every time a card from the current deck is flipped face up, it will be added here (including dealerUpCard). Resets when deck is shuffled.  
-  **id:** this game's ID.  
+  -**deckNumber:** Current deck being used. This value is incremented each time the deck is shuffled.  
+  -**players:** List of players in this game. If a player runs out of chips or takes too long, they won't be in this list.  
+  -**dealerUpCard:** Card object representing the dealer's face up card. This card is also included in "revealedCards".  
+  -**active:** Boolean representing whether or not this game is active. False before game has been started, and false after either all players run out of chips or last round has been reached.  
+  -**revealedCards:** List of card objects. Every time a card from the current deck is flipped face up, it will be added here (including dealerUpCard). Resets when deck is shuffled.  
+  -**id:** this game's ID.  
 
 
-## General notes and errors
+
+## General Notes and Errors
 This may look like a REST API, but it doesn't follow many of the REST conventions. It is intended serve as a fun way to demonstrate your knowledge of consuming APIs, a very useful skill with many applications. One of the standard features of REST is a stateless server. This server is very far from stateless... it is keeping track of multiple games with multiple players, each in a certain state at any given time. Because of this, you will have to perform some non-traditional (i.e. hacky) calls to make everything work nicely. Since the server has no way of talking to the clients (to perhaps, notify a client it is his or her turn to play), you must periodically poll the server to get this information. That is the sole purpose of the `/myTurn` endpoint. Once you register your player, you must wait for the game to begin. You can do so by hitting `/game/:gameid` every second or so (plz don't DDOS the server) until `active` is `true`. You can get info on games/players any time you want. Those endpoints shouldn't return an error unless you forget an ID or pass in an invalid one. However, all the endpoints that require `playerId` as a parameter are specific to you. You should always make sure it's your turn (by hitting `/myTurn` every second or so until `true`) before calling these. 
 
 Here's some example errors:
@@ -549,6 +550,104 @@ Here's some example errors:
 }
 ```
 
+
+
+
+
+## A quick run-through in python using the requests module
+
+Let's start off by registering a player
+```python
+>>> resp = requests.post('http://localhost:5000/player?name=max')
+>>> resp.json()
+{u'playerId': u'99de72bf-85e4-42c3-ba10-59e8f27b93b8', u'player': {u'chips': 1000, u'name': u'max', u'hand': {u'cards': [], u'soft': False, u'value': 0}}, u'game': {u'deckNumber': 0, u'players': [{u'chips': 1000, u'name': u'max', u'hand': {u'cards': [], u'soft': False, u'value': 0}}], u'dealerUpCard': None, u'active': False, u'revealedCards': [], u'id': u'cb77cd36-18f0-4793-81fa-4761adbac5a7'}, u'location': u'/player/99de72bf-85e4-42c3-ba10-59e8f27b93b8'}
+>>> startInfo = resp.json()
+>>> playerId = startInfo['playerId']
+>>> playerId
+u'99de72bf-85e4-42c3-ba10-59e8f27b93b8'
+```
+Cool... my player is registered, and I have a playerId for future requests.
+
+If you're testing your player locally, you'll have to start the game yourself. If we're all playing on the global server, I'll start it when everyone is ready.
+
+```python
+>>> requests.get('http://localhost:5000/start')
+```
+
+Since this game only has one non-dealer player, we know it's our turn right now. Just to be safe, let's check.
+
+```python
+>>> while not requests.get('http://localhost:5000/myTurn?playerId={}}'.format(playerId)).json()['myTurn']:
+...     time.sleep(1)
+... 
+>>> 
+```
+
+Alright, it's our turn. Let's put a wager on the table. How about 20 chips.
+
+```python
+>>> requests.get('http://localhost:5000/setWager?playerId={}&wager={}'.format(playerId, 20))
+<Response [200]>
+>>> 
+
+Before we check to see what was dealt, let's wait until it's our turn again. If other players take a second to set their wagers, the cards may not have been dealt yet.
+
+```python
+>>> while not requests.get('http://localhost:5000/myTurn?playerId={}}'.format(playerId)).json()['myTurn']:
+...     time.sleep(1)
+... 
+>>> 
+```
+
+Alright, let's check out our hand
+
+```python
+>>> resp = requests.get('http://localhost:5000/player/{}'.format(playerId))
+>>> player = resp.json()
+>>> player['hand']
+{u'cards': [{u'value': 8, u'suit': u'spades'}, {u'value': 6, u'suit': u'clubs'}], u'soft': False, u'value': 14}
+```
+
+Hmm... a 14. Not the best. Let's check the dealer up card so we make a more informed decision.
+
+```python
+>>> resp = requests.get('http://localhost:5000/game/b456c26d-e379-4348-90b2-8cd125579d6c')
+>>> game = resp.json()
+>>> game['dealerUpCard']
+{u'value': 6, u'suit': u'hearts'}
+```
+
+Well the dealer is showing a 6, so I think we should stay on this one and hope they bust.
+
+```python
+>>> requests.get('http://localhost:5000/stand?playerId=60c1f83c-f245-47b2-9db6-1d7f11994403')
+```
+
+Alright, let's see what happened.
+
+```python
+>>> resp = requests.get('http://localhost:5000/player/60c1f83c-f245-47b2-9db6-1d7f11994403')
+>>> player = resp.json()
+>>> player['chips']
+980
+```
+
+Bummer, we lost :(
+
+We can check the revealed cards for this deck to see how the round ended
+
+```python
+>>> resp = requests.get('http://localhost:5000/game/b456c26d-e379-4348-90b2-8cd125579d6c')
+>>> game = resp.json()
+>>> game['revealedCards']
+[{u'value': 8, u'suit': u'spades'}, {u'value': 6, u'suit': u'clubs'}, {u'value': 6, u'suit': u'hearts'}, {u'value': 9, u'suit': u'diamonds'}, {u'value': 4, u'suit': u'spades'}]
+```
+
+Looks like the dealer drew a 9 and then a 4, for a total 19. Rats!
+
+
+
+## Final Thoughts
 
 If we have time, we can play games with multiple players and see who ends up with the most chips (or lasts the longest before losing). The server has a built in monitor that will kick players who haven't done anything in 10 seconds, so make sure your player can last by itself before joining.  
 
