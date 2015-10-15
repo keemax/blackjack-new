@@ -589,6 +589,7 @@ Alright, it's our turn. Let's put a wager on the table. How about 20 chips.
 >>> requests.get('http://localhost:5000/setWager?playerId={}&wager={}'.format(playerId, 20))
 <Response [200]>
 >>> 
+```
 
 Before we check to see what was dealt, let's wait until it's our turn again. If other players take a second to set their wagers, the cards may not have been dealt yet.
 
@@ -621,6 +622,7 @@ Well the dealer is showing a 6, so I think we should stay on this one and hope t
 
 ```python
 >>> requests.get('http://localhost:5000/stand?playerId=60c1f83c-f245-47b2-9db6-1d7f11994403')
+<Response [200]>
 ```
 
 Alright, let's see what happened.
