@@ -7,6 +7,10 @@ To run, simply clone this repo and run `python application.py` from the root fol
 you should only need flask:  
 Flask==0.10.1	`pip install Flask`
 
+if you don't have pip, install it via
+`wget https://bootstrap.pypa.io/get-pip.py`
+`python get-pip.py`
+
 If you are unfamiliar with blackjack, try starting [here](http://wizardofodds.com/games/blackjack/basics/#toc-Rules)  
 (hint: even if you know all the rules, that website is very useful for all kinds of strategy tips)
 
