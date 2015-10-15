@@ -38,8 +38,10 @@ class Game:
         print 'starting game {}'.format(self.id)
 
     def deal(self):
+        print 'game {} dealing round {}'.format(self.id, self.round)
+        print '*** chip counts ***'
         for player in self.players:
-            print '{}: {}'.format(player.name, player.chips)
+            print '{} ({}): {}'.format(player.name, player.id, player.chips)
         # check deck size
         if len(self.deck.cards) < config.MIN_DECK_SIZE:
             self.deck = Deck()
@@ -125,7 +127,11 @@ class Game:
             player.hand = Hand()
 
         # remove players with insufficient chips
+        tempPlayers = self.players
         self.players = filter(lambda player: player.chips >= config.MIN_WAGER, self.players)
+        for player in tempPlayers:
+            if player not in self.players:
+                print 'player {} ({}) ran out of chips after round {}'.format(player.name, player.id, self.round)
         self.dealer_hand = Hand()
         self.round += 1
         if self.round == config.MAX_ROUNDS or len(self.players) == 0:
@@ -156,8 +162,8 @@ class Game:
         player.current_wager = 0
 
     def kick_current_player(self):
-        print 'kicking player {}'.format(self.current_player_index)
-        self.players.pop(self.current_player_index)
+        kickedPlayer = self.players.pop(self.current_player_index)
+        print 'kicking {} ({}) for inactivity'.format(kickedPlayer.name, kickedPlayer.id)
         if self.current_player_index == len(self.players):
             self.current_player_index = 0
         if len(self.players) == 0:
