@@ -447,7 +447,7 @@ Note: Rhis is the only time you'll get your playerId - keep it secret, keep it s
 ##### parameters: playerId
 
 
-`GET /hit?playerId=482a8c91-6999-4b99-ac4f-4260f0ee19cf
+`GET /hit?playerId=482a8c91-6999-4b99-ac4f-4260f0ee19cf`
 
 
 ```json
@@ -463,7 +463,7 @@ Note: Rhis is the only time you'll get your playerId - keep it secret, keep it s
 ##### parameters: playerId
 
 
-`GET /doubleDown?playerId=482a8c91-6999-4b99-ac4f-4260f0ee19cf
+`GET /doubleDown?playerId=482a8c91-6999-4b99-ac4f-4260f0ee19cf`
 
 
 ```json
