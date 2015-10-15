@@ -118,7 +118,7 @@ class Game:
         self.__resolve_dealer_hand()
         for player in self.players:
             if player.state == PlayerStates.BUSTED:
-                player.chips -= player.current_wager
+                player.add_chips(player.current_wager * -1)
                 player.current_wager = 0
             else:
                 self.__resolve_winnings(player, self.dealer_hand)
@@ -131,7 +131,7 @@ class Game:
         self.players = filter(lambda player: player.chips >= config.MIN_WAGER, self.players)
         for player in tempPlayers:
             if player not in self.players:
-                print 'player {} ({}) ran out of chips after round {}'.format(player.name, player.id, self.round)
+                print 'player {} ({}) ran out of chips after round {} with maximum stack {} and winning pct {}'.format(player.name, player.id, self.round, player.max_chips, player.wins / float(self.round))
         self.dealer_hand = Hand()
         self.round += 1
         if self.round == config.MAX_ROUNDS or len(self.players) == 0:
@@ -154,11 +154,11 @@ class Game:
 
         if player.hand.value == 21 and len(player.hand.cards) == 2:
             if not (dealerValue == 21 and len(dealerHand.cards) == 2):
-                player.chips += player.current_wager * 1.5
+                player.add_chips(player.current_wager * 1.5)
         elif dealerValue > 21 or player.hand.value > dealerValue:
-            player.chips += player.current_wager
+            player.add_chips(player.current_wager)
         elif player.hand.value < dealerValue:
-            player.chips -= player.current_wager
+            player.add_chips(player.current_wager * -1)
         player.current_wager = 0
 
     def kick_current_player(self):

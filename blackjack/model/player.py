@@ -9,9 +9,15 @@ class Player:
         self.current_wager = 0
         self.hand = Hand()
         self.state = PlayerStates.NEEDS_WAGER
+        self.max_chips = 0
+        self.wins = 0
 
     def add_chips(self, amount):
         self.chips += amount
+        if self.chips > self.max_chips:
+            self.max_chips = self.chips
+        if amount > 0:
+            self.wins += 1
 
     def set_wager(self, wager):
         self.current_wager = wager
