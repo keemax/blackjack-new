@@ -152,13 +152,16 @@ class Game:
         dealerValue = self.dealer_hand.value
         if self.dealer_hand.soft:
             dealerValue += 10
+        playerValue = player.hand.value
+        if player.hand.soft:
+            playerValue += 10
 
-        if player.hand.value == 21 and len(player.hand.cards) == 2:
+        if playerValue == 21 and len(player.hand.cards) == 2:
             if not (dealerValue == 21 and len(dealerHand.cards) == 2):
                 player.add_chips(player.current_wager * 1.5)
-        elif dealerValue > 21 or player.hand.value > dealerValue:
+        elif dealerValue > 21 or playerValue > dealerValue:
             player.add_chips(player.current_wager)
-        elif player.hand.value < dealerValue:
+        elif playerValue < dealerValue:
             player.add_chips(player.current_wager * -1)
         player.current_wager = 0
 
