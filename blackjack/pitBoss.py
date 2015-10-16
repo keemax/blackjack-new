@@ -72,6 +72,8 @@ class PitBoss:
 
     def is_it_my_turn(self, playerId):
         game = self.playerAssignments[playerId]
+        if not game.active:
+            return False
         return game.players[game.current_player_index].id == playerId and game.active
 
 
