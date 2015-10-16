@@ -663,5 +663,8 @@ As far as blackjack strategy goes, the internet is your oyster. If there's somet
 
 ### Have fun!
 
+## global server
+http://ec2-52-25-237-207.us-west-2.compute.amazonaws.com
+
 
 
