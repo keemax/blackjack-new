@@ -41,7 +41,8 @@ class Game:
         print 'game {} dealing round {}'.format(self.id, self.round)
         print '*** player stats ***'
         for player in self.players:
-            print '{} ({}) | chips: {} | highest: {} | win pct: {}'.format(player.name, player.id, player.chips, player.max_chips, player.wins / self.round)
+            if self.round > 0:
+                print '{} ({}) | chips: {} | highest: {} | win pct: {}'.format(player.name, player.id, player.chips, player.max_chips, player.wins / self.round)
         # check deck size
         if len(self.deck.cards) < config.MIN_DECK_SIZE:
             self.deck = Deck()
